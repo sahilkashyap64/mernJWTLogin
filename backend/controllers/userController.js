@@ -12,7 +12,7 @@ async function validatePassword(plainPassword, hashedPassword) {
 //sign up
 exports.signup = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { name,email, password } = req.body;
     if (!email || !password) {
       throw new ErrorHandler(404, 'Missing required email and password fields');
     }
@@ -25,20 +25,15 @@ exports.signup = async (req, res, next) => {
           }
     const hashedPassword = await hashPassword(password);
     const newUser = new User({
+      name,
       email,
       password: hashedPassword,
     
     });
-    const accessToken = jwt.sign(
-      { userId: newUser._id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1d"
-      }
-    );
-    newUser.accessToken = accessToken;
+    
+  
    await newUser.save();
-    res.json({ data: newUser,accessToken });
+    res.json({ user: newUser });
   } catch (error) {
     next(error);
   }
@@ -56,13 +51,60 @@ exports.login = async (req, res, next) => {
     if (!validPassword) {
       throw new ErrorHandler(404, 'Password is not correct!')
     }
-    const accessToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userbd: user }, process.env.JWT_SECRET, {
       expiresIn: "1d"
     });
-    await User.findByIdAndUpdate(user._id, { accessToken });
+    
     res
       .status(200)
-      .json({ data: { email: user.email }, accessToken });
+      .json({ ok:true,userbd:user, token });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.deleteUser = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+    await User.findByIdAndDelete(userId);
+    res.status(200).json({
+      data: null,
+      message: "User has been deleted"
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+//unprotected route get all users
+exports.getUser = async (req, res, next) => {
+  const users = await User.find({});//get all user from db
+  res.status(200).json({
+     users
+  });
+};
+//delete all id
+exports.deleteAllUser = async (req, res, next) => {
+  try {
+    
+    await User.remove( { } )
+    res.status(200).json({
+      data: null,
+      message: "User has been deleted"
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+exports.allowIfLoggedin = async (req, res, next) => {
+  try {
+    const user = res.locals.loggedInUser;
+    if (!user)
+      return res.status(401).json({
+        error: "You need to be logged in to access this route"
+      });
+    req.user = user;
+    next();
   } catch (error) {
     next(error);
   }

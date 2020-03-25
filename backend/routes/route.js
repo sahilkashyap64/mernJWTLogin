@@ -7,4 +7,25 @@ router.post("/signup", userController.signup);//get signup function from userCon
 
 router.post("/login", userController.login);//get login function from userController
 
+router.delete(
+  "/delAll/",
+  userController.deleteAllUser
+);
+router.get(
+  "/user",
+  
+  
+  userController.getUser
+);
+router.get(
+  "/users",
+  userController.allowIfLoggedin,
+  
+  userController.getUser
+);
+router.delete(
+  "/user/:userId",
+  userController.deleteUser
+);
+
 module.exports = router;
