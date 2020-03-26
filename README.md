@@ -3,9 +3,8 @@
 # MERN Login API(JWT) w/ Express.js and MongoDB
 
 A backend application using Node.js with the Express framework, that implements a JWT for login with the MongoDB.
-Frontend -React
-              ->Context api
-              ->Js fetch used to deal with APIs request
+
+              
 ●User can log in and sign up.
 NOTE: store password hashed(bcrypt)
 ● Login user can see all the users.
@@ -114,4 +113,6 @@ url: "/delAll"
 method: "DELETE"
 url: "/user/:userId"
 ```
-
+##React
+*Context api
+*Js fetch used to deal with APIs request
